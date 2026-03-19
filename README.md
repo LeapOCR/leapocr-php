@@ -1,6 +1,8 @@
 # LeapOCR PHP SDK
 
 [![Packagist Version](https://img.shields.io/packagist/v/leapocr/leapocr-php)](https://packagist.org/packages/leapocr/leapocr-php)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/leapocr/leapocr-php)](https://packagist.org/packages/leapocr/leapocr-php)
+[![CI](https://github.com/LeapOCR/leapocr-php/actions/workflows/ci.yml/badge.svg)](https://github.com/LeapOCR/leapocr-php/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4.svg)](https://www.php.net/)
 
