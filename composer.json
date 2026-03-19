@@ -1,0 +1,60 @@
+{
+  "name": "leapocr/leapocr-php",
+  "description": "Official PHP SDK for LeapOCR - Transform documents into structured data using AI-powered OCR.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "ocr",
+    "document-processing",
+    "document-extraction",
+    "ai",
+    "php",
+    "sdk"
+  ],
+  "homepage": "https://www.leapocr.com/",
+  "support": {
+    "docs": "https://docs.leapocr.com",
+    "issues": "https://github.com/leapocr/leapocr-php/issues",
+    "source": "https://github.com/leapocr/leapocr-php"
+  },
+  "authors": [
+    {
+      "name": "LeapOCR",
+      "email": "support@leapocr.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "guzzlehttp/guzzle": "^7.8",
+    "guzzlehttp/psr7": "^2.7"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.76",
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "LeapOCR\\": "src/",
+      "LeapOCRGenerated\\": "src/Generated/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "LeapOCR\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "generate": "make generate",
+    "test": "php vendor/bin/phpunit --testsuite unit",
+    "test:integration": "php vendor/bin/phpunit --testsuite integration",
+    "format": "php vendor/bin/php-cs-fixer fix --allow-risky=yes",
+    "lint": "find src tests -name '*.php' -print0 | xargs -0 -n1 php -l"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
+

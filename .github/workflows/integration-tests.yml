@@ -1,0 +1,39 @@
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: API Base URL
+        required: false
+        default: http://localhost:8443/api/v1
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    environment: integration-testing
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+          extensions: curl, json, mbstring
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run integration tests
+        env:
+          LEAPOCR_API_KEY: ${{ secrets.LEAPOCR_API_KEY }}
+          LEAPOCR_BASE_URL: ${{ github.event.inputs.api_base_url || 'http://localhost:8443/api/v1' }}
+          OCR_BASE_URL: ${{ github.event.inputs.api_base_url || 'http://localhost:8443/api/v1' }}
+        run: composer run test:integration

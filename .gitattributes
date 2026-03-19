@@ -1,0 +1,12 @@
+/.github export-ignore
+/examples export-ignore
+/openapi.json export-ignore
+/openapi-sdk.json export-ignore
+/openapitools.json export-ignore
+/phpunit.xml.dist export-ignore
+/sample export-ignore
+/scripts export-ignore
+/tests export-ignore
+/vendor export-ignore
+/Makefile export-ignore
+/mise.toml export-ignore

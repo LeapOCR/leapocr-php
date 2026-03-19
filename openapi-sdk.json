@@ -1,0 +1,1064 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "contact": {
+      "email": "support@leapocr.com",
+      "name": "LeapOCR Support",
+      "url": "http://leapocr.com/support"
+    },
+    "description": "Advanced OCR API for processing PDF documents with AI-powered text extraction using Gemini LLM integration. Supports structured data extraction, template-based processing, and real-time job management.",
+    "license": {
+      "name": "LeapOCR License",
+      "url": "http://leapocr.com/license"
+    },
+    "termsOfService": "http://leapocr.com/terms/",
+    "title": "LeapOCR API",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "api.leapocr.com/api/v1"
+    },
+    {
+      "description": "Local development server",
+      "url": "http://localhost:8443/api/v1"
+    },
+    {
+      "description": "Production server",
+      "url": "https://api.leapocr.com/api/v1"
+    }
+  ],
+  "paths": {
+    "/ocr/result/{job_id}": {
+      "get": {
+        "description": "Retrieve OCR processing results for a completed job with extracted text and structured data. Returns job status if processing is still in progress. Supports pagination",
+        "operationId": "getJobResult",
+        "parameters": [
+          {
+            "description": "OCR job ID",
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Page number for result pagination",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of items per page",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.OCRResultResponse"
+                }
+              }
+            },
+            "description": "OCR processing completed, results available"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.OCRStatusResponse"
+                }
+              }
+            },
+            "description": "OCR processing in progress, status returned"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad request - invalid job ID or parameters"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden - job belongs to different user"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found - job does not exist"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Get OCR job result",
+        "tags": [
+          "SDK"
+        ]
+      }
+    },
+    "/ocr/status/{job_id}": {
+      "get": {
+        "description": "Retrieve current processing status and progress information for an OCR job. Shows completion status, progress percentage, and any error details",
+        "operationId": "getJobStatus",
+        "parameters": [
+          {
+            "description": "OCR job ID",
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/status.Response"
+                }
+              }
+            },
+            "description": "Job status retrieved successfully"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad request - invalid job ID format"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden - job belongs to different user"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found - job does not exist"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Get OCR job status",
+        "tags": [
+          "SDK"
+        ]
+      }
+    },
+    "/ocr/uploads/direct": {
+      "post": {
+        "description": "Create a job and generate presigned URLs for direct file upload to S3. Uses multipart upload for all files (1 part for small files, multiple parts for large files \u226550MB).\n**Output Types:**\n- `structured`: Structured data extraction. Requires either template_slug OR format (with schema)\n- `markdown`: Page-by-page OCR. Requires either template_slug or format. When using format directly, model is required; other fields remain optional unless structured schema rules apply\n**Note:** Only one of template_slug or format can be provided per request",
+        "operationId": "directUpload",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "$ref": "#/components/schemas/upload.InitiateDirectUploadRequest",
+                    "summary": "request",
+                    "description": "Upload initiation request"
+                  }
+                ]
+              }
+            }
+          },
+          "description": "Upload initiation request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/upload.DirectUploadResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Insufficient credits"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Direct upload",
+        "tags": [
+          "SDK"
+        ]
+      }
+    },
+    "/ocr/uploads/url": {
+      "post": {
+        "description": "Create a job and start processing from a remote URL that serves a supported document or image type.\n**Output Types:**\n- `structured`: Structured data extraction. Requires either template_slug OR format (with schema)\n- `markdown`: Page-by-page OCR. Requires either template_slug or format. When using format directly, model is required; other fields remain optional unless structured schema rules apply\n**Note:** Only one of template_slug or format can be provided per request",
+        "operationId": "uploadFromRemoteURL",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "$ref": "#/components/schemas/upload.RemoteURLUploadRequest",
+                    "summary": "request",
+                    "description": "Remote URL upload request"
+                  }
+                ]
+              }
+            }
+          },
+          "description": "Remote URL upload request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/upload.RemoteURLUploadResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Insufficient credits"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Remote URL upload",
+        "tags": [
+          "SDK"
+        ]
+      }
+    },
+    "/ocr/uploads/{job_id}/complete": {
+      "post": {
+        "description": "Complete a direct upload by providing all uploaded part ETags",
+        "operationId": "completeDirectUpload",
+        "parameters": [
+          {
+            "description": "Job ID",
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "$ref": "#/components/schemas/upload.DirectUploadCompleteRequest",
+                    "summary": "request",
+                    "description": "Completion request with part ETags"
+                  }
+                ]
+              }
+            }
+          },
+          "description": "Completion request with part ETags",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/upload.DirectUploadCompleteResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Complete direct upload",
+        "tags": [
+          "SDK"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "models.BoundingBox": {
+        "properties": {
+          "bounds": {
+            "$ref": "#/components/schemas/models.BoxBounds"
+          },
+          "metadata": {
+            "description": "Optional metadata (e.g., heading level, table structure)"
+          },
+          "text": {
+            "description": "Text content of the block",
+            "type": "string"
+          },
+          "type": {
+            "description": "Block type: paragraph, heading, table, figure, caption, list, footer, header",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "models.BoxBounds": {
+        "description": "Bounding box coordinates in pixels",
+        "properties": {
+          "height": {
+            "description": "Height in pixels",
+            "type": "integer"
+          },
+          "width": {
+            "description": "Width in pixels",
+            "type": "integer"
+          },
+          "x": {
+            "description": "Left edge X coordinate",
+            "type": "integer"
+          },
+          "y": {
+            "description": "Top edge Y coordinate",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "models.JobStatus": {
+        "description": "The current status of the job\nexample: completed",
+        "enum": [
+          "pending",
+          "processing",
+          "completed",
+          "partially_done",
+          "failed"
+        ],
+        "example": "pending",
+        "type": "string",
+        "x-enum-varnames": [
+          "JobStatusPending",
+          "JobStatusProcessing",
+          "JobStatusCompleted",
+          "JobStatusPartiallyDone",
+          "JobStatusFailed"
+        ]
+      },
+      "models.OCRResultResponse": {
+        "properties": {
+          "completed_at": {
+            "type": "string"
+          },
+          "credits_used": {
+            "type": "integer"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/models.PageResponse"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/models.PaginationResponse"
+          },
+          "processed_pages": {
+            "type": "integer"
+          },
+          "result_format": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/models.JobStatus"
+          },
+          "total_pages": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "models.OCRStatusResponse": {
+        "properties": {
+          "completed_at": {
+            "type": "string"
+          },
+          "error_message": {
+            "type": "string"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "processed_pages": {
+            "type": "integer"
+          },
+          "result_format": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/models.JobStatus"
+          },
+          "total_pages": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "models.PageDims": {
+        "description": "Page dimensions in pixels. Present when available.",
+        "properties": {
+          "height": {
+            "type": "integer"
+          },
+          "width": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "models.PageResponse": {
+        "properties": {
+          "bounding_boxes": {
+            "description": "Semantic blocks with locations. Automatically included when available.",
+            "items": {
+              "$ref": "#/components/schemas/models.BoundingBox"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "confidence": {
+            "description": "Confidence score from quality check (0.0-1.0). Present when quality assessment is enabled.",
+            "type": "number"
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/models.PageDims"
+          },
+          "has_bounding_boxes": {
+            "description": "Whether bounding box data is available. True if bbox extraction was performed.",
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "page_number": {
+            "type": "integer"
+          },
+          "result": {
+            "description": "String for markdown, Object for structured formats. Type varies by job result_format."
+          }
+        },
+        "type": "object"
+      },
+      "models.PaginationResponse": {
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "response.ErrorCode": {
+        "enum": [
+          "VALIDATION_ERROR",
+          "NOT_FOUND",
+          "AUTHENTICATION_ERROR",
+          "FORBIDDEN",
+          "SYSTEM_ERROR",
+          "BAD_REQUEST",
+          "CONFLICT",
+          "TOO_MANY_REQUESTS",
+          "LESS_CREDITS"
+        ],
+        "type": "string",
+        "x-enum-varnames": [
+          "ErrCodeValidation",
+          "ErrCodeNotFound",
+          "ErrCodeUnauthorized",
+          "ErrCodeForbidden",
+          "ErrCodeInternal",
+          "ErrCodeBadRequest",
+          "ErrCodeConflict",
+          "ErrCodeTooManyReqs",
+          "ErrLessCredits"
+        ]
+      },
+      "response.ErrorMessage": {
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "response.ErrorResponse": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/response.ErrorCode"
+          },
+          "details": {},
+          "error": {
+            "$ref": "#/components/schemas/response.ErrorMessage"
+          }
+        },
+        "type": "object"
+      },
+      "status.Response": {
+        "properties": {
+          "created_at": {
+            "description": "When the job was created",
+            "type": "string"
+          },
+          "error_message": {
+            "description": "Error message if job failed\nexample: Failed to process page 5",
+            "type": "string"
+          },
+          "file_name": {
+            "description": "The name of the file being processed\nexample: quarterly_financial_report_q4.pdf",
+            "type": "string"
+          },
+          "id": {
+            "description": "The unique identifier of the job\nexample: 123e4567-e89b-12d3-a456-426614174000",
+            "type": "string"
+          },
+          "processed_pages": {
+            "description": "Number of pages processed so far\nexample: 24",
+            "type": "integer"
+          },
+          "processing_time": {
+            "description": "Total processing time in seconds\nexample: 156",
+            "type": "integer"
+          },
+          "result_format": {
+            "description": "The result format type of the job\nexample: structured",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/models.JobStatus"
+          },
+          "total_pages": {
+            "description": "Total number of pages in the document\nexample: 24",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "upload.CompletedPart": {
+        "properties": {
+          "etag": {
+            "example": "\"9bb58f26192e4ba00f01e2e7b136bbd8\"",
+            "minLength": 1,
+            "type": "string"
+          },
+          "part_number": {
+            "example": 1,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "etag",
+          "part_number"
+        ],
+        "type": "object"
+      },
+      "upload.DirectUploadCompleteRequest": {
+        "properties": {
+          "parts": {
+            "items": {
+              "$ref": "#/components/schemas/upload.CompletedPart"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": false
+          }
+        },
+        "required": [
+          "parts"
+        ],
+        "type": "object"
+      },
+      "upload.DirectUploadCompleteResponse": {
+        "properties": {
+          "created_at": {
+            "example": "2023-12-25T10:30:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "job_id": {
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "format": "uuid",
+            "type": "string"
+          },
+          "message": {
+            "example": "Upload completed successfully, processing started",
+            "type": "string"
+          },
+          "status": {
+            "example": "pending",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "upload.DirectUploadResponse": {
+        "properties": {
+          "chunk_size": {
+            "example": 5242880,
+            "type": "integer"
+          },
+          "complete_url": {
+            "example": "/api/v1/ocr/uploads/123e4567-e89b-12d3-a456-426614174000/complete",
+            "type": "string"
+          },
+          "expires_at": {
+            "example": "2023-12-25T10:45:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "job_id": {
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "format": "uuid",
+            "type": "string"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/components/schemas/upload.MultipartPart"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "total_chunks": {
+            "example": 1,
+            "type": "integer"
+          },
+          "upload_id": {
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "type": "string"
+          },
+          "upload_type": {
+            "example": "multipart",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "upload.InitiateDirectUploadRequest": {
+        "properties": {
+          "content_type": {
+            "example": "application/pdf",
+            "type": "string"
+          },
+          "extract_bounding_boxes": {
+            "description": "Pipeline enhancement: bounding box extraction",
+            "example": false,
+            "type": "boolean"
+          },
+          "file_name": {
+            "example": "document.pdf",
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "file_size": {
+            "example": 1048576,
+            "maximum": 1073741824,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "format": {
+            "enum": [
+              "markdown",
+              "structured"
+            ],
+            "example": "markdown",
+            "type": "string"
+          },
+          "instructions": {
+            "example": "Extract key information",
+            "maxLength": 100,
+            "type": "string"
+          },
+          "model": {
+            "example": "standard-v2",
+            "type": "string"
+          },
+          "save_as_template": {
+            "example": false,
+            "type": "boolean"
+          },
+          "schema": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "template_slug": {
+            "example": "invoice-template",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content_type",
+          "file_name",
+          "file_size"
+        ],
+        "type": "object"
+      },
+      "upload.MultipartPart": {
+        "properties": {
+          "end_byte": {
+            "example": 5242879,
+            "type": "integer"
+          },
+          "part_number": {
+            "example": 1,
+            "type": "integer"
+          },
+          "start_byte": {
+            "example": 0,
+            "type": "integer"
+          },
+          "upload_url": {
+            "example": "https://r2.example.com/bucket/file.pdf?partNumber=1&uploadId=abc123",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "upload.RemoteURLUploadRequest": {
+        "properties": {
+          "extract_bounding_boxes": {
+            "description": "Pipeline enhancement: bounding box extraction",
+            "example": false,
+            "type": "boolean"
+          },
+          "file_name": {
+            "example": "document.pdf",
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "format": {
+            "description": "Option 2: Direct specification (will create template on-the-fly)",
+            "enum": [
+              "markdown",
+              "structured"
+            ],
+            "example": "markdown",
+            "type": "string"
+          },
+          "instructions": {
+            "example": "Extract key information",
+            "maxLength": 100,
+            "type": "string"
+          },
+          "model": {
+            "example": "standard-v2",
+            "type": "string"
+          },
+          "save_as_template": {
+            "example": false,
+            "type": "boolean"
+          },
+          "schema": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "template_slug": {
+            "description": "Option 1: Use existing template by slug",
+            "example": "invoice-template",
+            "type": "string"
+          },
+          "url": {
+            "example": "https://example.com/document.pdf",
+            "maxLength": 2000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "upload.RemoteURLUploadResponse": {
+        "properties": {
+          "created_at": {
+            "example": "2023-12-25T10:30:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "job_id": {
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "format": "uuid",
+            "type": "string"
+          },
+          "source_url": {
+            "example": "https://example.com/document.pdf",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/models.JobStatus"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "description": "Provide your LeapOCR API key via the `X-API-KEY` header. Example: X-API-KEY: YOUR_API_KEY",
+        "in": "header",
+        "name": "X-API-KEY",
+        "type": "apiKey"
+      },
+      "BearerAuth": {
+        "description": "Provide your JWT token via the `Authorization` header. Example: Authorization: Bearer <token>",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "SDK",
+      "description": "Public SDK operations"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ]
+}
