@@ -1354,109 +1354,6 @@
                 },
                 "type": "object"
             },
-            "jobs.JobManagementResponse": {
-                "properties": {
-                    "action": {
-                        "example": "retry",
-                        "type": "string"
-                    },
-                    "job": {
-                        "$ref": "#/components/schemas/jobs.JobResponse"
-                    },
-                    "message": {
-                        "example": "Job retry initiated successfully",
-                        "type": "string"
-                    },
-                    "success": {
-                        "example": true,
-                        "type": "boolean"
-                    }
-                },
-                "type": "object"
-            },
-            "jobs.JobResponse": {
-                "properties": {
-                    "completed_at": {
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "type": "string"
-                    },
-                    "credits_used": {
-                        "type": "integer"
-                    },
-                    "deleted_at": {
-                        "type": "string"
-                    },
-                    "error_message": {
-                        "type": "string"
-                    },
-                    "file_name": {
-                        "type": "string"
-                    },
-                    "file_size": {
-                        "type": "integer"
-                    },
-                    "id": {
-                        "type": "string"
-                    },
-                    "metadata": {
-                        "additionalProperties": {},
-                        "type": "object"
-                    },
-                    "processed_pages": {
-                        "type": "integer"
-                    },
-                    "status": {
-                        "type": "string"
-                    },
-                    "team_id": {
-                        "type": "string"
-                    },
-                    "template_id": {
-                        "type": "string"
-                    },
-                    "template_internal": {
-                        "type": "boolean"
-                    },
-                    "template_name": {
-                        "type": "string"
-                    },
-                    "total_pages": {
-                        "type": "integer"
-                    },
-                    "updated_at": {
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    }
-                },
-                "type": "object"
-            },
-            "jobs.JobStatusResponse": {
-                "properties": {
-                    "estimated_stuck": {
-                        "example": false,
-                        "type": "boolean"
-                    },
-                    "is_retryable": {
-                        "example": true,
-                        "type": "boolean"
-                    },
-                    "job": {
-                        "$ref": "#/components/schemas/jobs.JobResponse"
-                    },
-                    "last_activity": {
-                        "format": "date-time",
-                        "type": "string"
-                    },
-                    "workflow_status": {
-                        "$ref": "#/components/schemas/jobs.WorkflowStatusInfo"
-                    }
-                },
-                "type": "object"
-            },
             "jobs.JobsListCursorResponse": {
                 "properties": {
                     "data": {
@@ -1477,90 +1374,6 @@
                     },
                     "total_pages": {
                         "type": "integer"
-                    }
-                },
-                "type": "object"
-            },
-            "jobs.WorkflowJobStatusInfo": {
-                "properties": {
-                    "job_id": {
-                        "type": "string"
-                    },
-                    "progress": {
-                        "$ref": "#/components/schemas/jobs.WorkflowProgressInfo"
-                    },
-                    "status": {
-                        "example": "page_processing",
-                        "type": "string"
-                    }
-                },
-                "type": "object"
-            },
-            "jobs.WorkflowProgressInfo": {
-                "properties": {
-                    "job_id": {
-                        "type": "string"
-                    },
-                    "message": {
-                        "example": "Processing page 5 of 10",
-                        "type": "string"
-                    },
-                    "percentage": {
-                        "example": 50,
-                        "maximum": 100,
-                        "minimum": 0,
-                        "type": "integer"
-                    },
-                    "stage": {
-                        "example": "page_processing",
-                        "type": "string"
-                    },
-                    "timestamp": {
-                        "format": "date-time",
-                        "type": "string"
-                    }
-                },
-                "type": "object"
-            },
-            "jobs.WorkflowStatusInfo": {
-                "properties": {
-                    "close_time": {
-                        "format": "date-time",
-                        "type": "string"
-                    },
-                    "error": {
-                        "type": "string"
-                    },
-                    "job_status": {
-                        "$ref": "#/components/schemas/jobs.WorkflowJobStatusInfo"
-                    },
-                    "progress": {
-                        "$ref": "#/components/schemas/jobs.WorkflowProgressInfo"
-                    },
-                    "run_id": {
-                        "example": "abc123-def456-ghi789",
-                        "type": "string"
-                    },
-                    "start_time": {
-                        "format": "date-time",
-                        "type": "string"
-                    },
-                    "status": {
-                        "enum": [
-                            "RUNNING",
-                            "COMPLETED",
-                            "FAILED",
-                            "CANCELED",
-                            "TERMINATED",
-                            "CONTINUED_AS_NEW",
-                            "TIMED_OUT"
-                        ],
-                        "example": "RUNNING",
-                        "type": "string"
-                    },
-                    "workflow_id": {
-                        "example": "ocr-job-123e4567-e89b-12d3-a456-426614174000",
-                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -1945,6 +1758,14 @@
                     },
                     "status": {
                         "$ref": "#/components/schemas/models.JobStatus"
+                    },
+                    "template_internal": {
+                        "description": "Whether the template is an internal preset\nexample: false",
+                        "type": "boolean"
+                    },
+                    "template_name": {
+                        "description": "Template display name when the job was created from a template\nexample: Invoice Extractor",
+                        "type": "string"
                     },
                     "total_pages": {
                         "description": "Total number of pages in the document\nexample: 24",
@@ -2902,24 +2723,6 @@
                 "operationId": "deleteJob",
                 "parameters": [
                     {
-                        "description": "Organization ID",
-                        "in": "path",
-                        "name": "organization_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Team ID",
-                        "in": "path",
-                        "name": "team_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "description": "OCR job ID to delete",
                         "in": "path",
                         "name": "job_id",
@@ -2977,7 +2780,8 @@
                 },
                 "summary": "Delete OCR job",
                 "tags": [
-                    "Jobs"
+                    "Jobs",
+                    "SDK"
                 ]
             }
         },
@@ -3506,7 +3310,7 @@
         },
         "/onboarding": {
             "post": {
-                "description": "Create onboarding status for an entity",
+                "description": "Create onboarding status for the authenticated user",
                 "operationId": "createOnboarding",
                 "requestBody": {
                     "content": {
@@ -3583,7 +3387,7 @@
         },
         "/onboarding/{external_id}": {
             "delete": {
-                "description": "Permanently delete onboarding status for an entity",
+                "description": "Permanently delete onboarding status for the authenticated user",
                 "operationId": "deleteOnboarding",
                 "parameters": [
                     {
@@ -3632,7 +3436,7 @@
                 ]
             },
             "get": {
-                "description": "Get onboarding status for an entity by external ID",
+                "description": "Get onboarding status for the authenticated user by external ID",
                 "operationId": "getOnboarding",
                 "parameters": [
                     {
@@ -3688,7 +3492,7 @@
                 ]
             },
             "put": {
-                "description": "Update onboarding steps and metadata for an entity",
+                "description": "Update onboarding steps and metadata for the authenticated user",
                 "operationId": "updateOnboarding",
                 "parameters": [
                     {
@@ -6061,294 +5865,6 @@
                     }
                 },
                 "summary": "List jobs with cursor pagination",
-                "tags": [
-                    "Jobs"
-                ]
-            }
-        },
-        "/organizations/{organization_id}/teams/{team_id}/jobs/{job_id}": {
-            "delete": {
-                "description": "Permanently delete an OCR job and all associated data including pages, results, and metadata. This action cannot be undone",
-                "operationId": "deleteJob",
-                "parameters": [
-                    {
-                        "description": "Organization ID",
-                        "in": "path",
-                        "name": "organization_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Team ID",
-                        "in": "path",
-                        "name": "team_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "OCR job ID to delete",
-                        "in": "path",
-                        "name": "job_id",
-                        "required": true,
-                        "schema": {
-                            "format": "uuid",
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Job deleted successfully"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Bad request - invalid job ID"
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Unauthorized - authentication required"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Not found - job does not exist or already deleted"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Internal server error"
-                    }
-                },
-                "summary": "Delete OCR job",
-                "tags": [
-                    "Jobs"
-                ]
-            }
-        },
-        "/organizations/{organization_id}/teams/{team_id}/jobs/{job_id}/retry": {
-            "post": {
-                "description": "Retry a failed OCR job using the original file. Only jobs with status 'failed' can be retried",
-                "operationId": "retryJob",
-                "parameters": [
-                    {
-                        "description": "Organization ID",
-                        "in": "path",
-                        "name": "organization_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Team ID",
-                        "in": "path",
-                        "name": "team_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "OCR job ID to retry",
-                        "in": "path",
-                        "name": "job_id",
-                        "required": true,
-                        "schema": {
-                            "format": "uuid",
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/jobs.JobManagementResponse"
-                                }
-                            }
-                        },
-                        "description": "Job retry initiated successfully"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Bad request - invalid job ID"
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Unauthorized - authentication required"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Not found - job does not exist"
-                    },
-                    "409": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Conflict - job is not in failed state"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Internal server error"
-                    }
-                },
-                "summary": "Retry failed OCR job",
-                "tags": [
-                    "Jobs"
-                ]
-            }
-        },
-        "/organizations/{organization_id}/teams/{team_id}/jobs/{job_id}/status": {
-            "get": {
-                "description": "Get comprehensive job status including database state and Temporal workflow progress information",
-                "operationId": "getTeamJobStatus",
-                "parameters": [
-                    {
-                        "description": "Organization ID",
-                        "in": "path",
-                        "name": "organization_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Team ID",
-                        "in": "path",
-                        "name": "team_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "OCR job ID",
-                        "in": "path",
-                        "name": "job_id",
-                        "required": true,
-                        "schema": {
-                            "format": "uuid",
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Include Temporal workflow details",
-                        "in": "query",
-                        "name": "include_workflow",
-                        "schema": {
-                            "default": false,
-                            "type": "boolean"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/jobs.JobStatusResponse"
-                                }
-                            }
-                        },
-                        "description": "Job status retrieved successfully"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Bad request - invalid job ID"
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Unauthorized - authentication required"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Not found - job does not exist"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/response.ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Internal server error"
-                    }
-                },
-                "summary": "Get job status with workflow details",
                 "tags": [
                     "Jobs"
                 ]

@@ -45,7 +45,7 @@ generate: filter-spec
 		-g php \
 		-o $(GEN_TMP) \
 		--skip-validate-spec \
-		--additional-properties=invokerPackage=LeapOCRGenerated,packageName=LeapOCRGenerated,composerPackageName=leapocr/leapocr-php,srcBasePath=src/Generated,artifactVersion=2.0.0,apiPackage=Api,modelPackage=Model,variableNamingConvention=snake_case \
+		--additional-properties=invokerPackage=LeapOCRGenerated,packageName=LeapOCRGenerated,composerPackageName=leapocr/leapocr-php,srcBasePath=src/Generated,artifactVersion=2.0.1,apiPackage=Api,modelPackage=Model,variableNamingConvention=snake_case \
 		--global-property=apiDocs=false,modelDocs=false,apiTests=false,modelTests=false
 	rm -rf $(GEN_SRC)
 	mkdir -p $(GEN_SRC)
@@ -74,4 +74,3 @@ lint:
 clean:
 	rm -rf $(GEN_TMP) $(GEN_SRC) vendor .phpunit.cache coverage
 	rm -f openapi.json openapi-sdk.json composer.lock
-

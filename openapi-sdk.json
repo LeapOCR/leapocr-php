@@ -29,6 +29,73 @@
     }
   ],
   "paths": {
+    "/ocr/delete/{job_id}": {
+      "delete": {
+        "description": "Permanently delete an OCR job and all associated data including pages, results, and metadata. This action cannot be undone",
+        "operationId": "deleteJob",
+        "parameters": [
+          {
+            "description": "OCR job ID to delete",
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Job deleted successfully"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad request - invalid job ID"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized - authentication required"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Not found - job does not exist or already deleted"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/response.ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Delete OCR job",
+        "tags": [
+          "SDK"
+        ]
+      }
+    },
     "/ocr/result/{job_id}": {
       "get": {
         "description": "Retrieve OCR processing results for a completed job with extracted text and structured data. Returns job status if processing is still in progress. Supports pagination",
@@ -766,6 +833,14 @@
           },
           "status": {
             "$ref": "#/components/schemas/models.JobStatus"
+          },
+          "template_internal": {
+            "description": "Whether the template is an internal preset\nexample: false",
+            "type": "boolean"
+          },
+          "template_name": {
+            "description": "Template display name when the job was created from a template\nexample: Invoice Extractor",
+            "type": "string"
           },
           "total_pages": {
             "description": "Total number of pages in the document\nexample: 24",

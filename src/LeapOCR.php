@@ -14,7 +14,7 @@ use LeapOCRGenerated\Configuration;
 
 final class LeapOCR
 {
-    public const VERSION = '2.0.0';
+    public const VERSION = '2.0.1';
 
     private readonly OCRService $ocr;
 
@@ -50,13 +50,13 @@ final class LeapOCR
         return $this->ocr;
     }
 
-    public static function verifyWebhookSignature(string $payload, string $signature, string $secret): bool
+    public static function verifyWebhookSignature(string $payload, string $signature, string $timestamp, string $secret): bool
     {
-        if ($signature === '' || $secret === '') {
+        if ($signature === '' || $timestamp === '' || $secret === '') {
             return false;
         }
 
-        $expectedSignature = hash_hmac('sha256', $payload, $secret);
+        $expectedSignature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
         return hash_equals($expectedSignature, $signature);
     }
 }

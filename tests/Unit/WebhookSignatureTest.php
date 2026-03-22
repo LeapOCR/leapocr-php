@@ -11,33 +11,43 @@ final class WebhookSignatureTest extends TestCase
 {
     public function testVerifyWebhookSignatureAcceptsValidSignature(): void
     {
-        $payload = '{"object_key":"test.pdf","size":1024,"timestamp":"2024-01-01T00:00:00Z"}';
+        $payload = '{"event_type":"webhook.test","event_id":"evt_123","timestamp":"2024-01-01T00:00:00Z","message":"This is a test webhook event"}';
         $secret = 'my-secret-key';
-        $signature = '394933efe0b0ad6082ac82d97a7fac1c8810ee48b2b395f2a1a75bf5403f9c8a';
+        $timestamp = '1704067200';
+        $signature = '51033b9251a1db2003caf73152dc990d20c3efd8c97d176603de1dc034aa1bc1';
 
-        self::assertTrue(LeapOCR::verifyWebhookSignature($payload, $signature, $secret));
+        self::assertTrue(LeapOCR::verifyWebhookSignature($payload, $signature, $timestamp, $secret));
     }
 
     public function testVerifyWebhookSignatureRejectsInvalidSignature(): void
     {
-        $payload = '{"object_key":"test.pdf","size":1024,"timestamp":"2024-01-01T00:00:00Z"}';
+        $payload = '{"event_type":"webhook.test","event_id":"evt_123","timestamp":"2024-01-01T00:00:00Z","message":"This is a test webhook event"}';
 
-        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, 'invalid-signature', 'my-secret-key'));
+        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, 'invalid-signature', '1704067200', 'my-secret-key'));
     }
 
     public function testVerifyWebhookSignatureRejectsDifferentPayload(): void
     {
-        $payload = '{"object_key":"different.pdf","size":1024,"timestamp":"2024-01-01T00:00:00Z"}';
-        $signature = '394933efe0b0ad6082ac82d97a7fac1c8810ee48b2b395f2a1a75bf5403f9c8a';
+        $payload = '{"event_type":"webhook.test","event_id":"evt_123","timestamp":"2024-01-01T00:00:00Z","message":"different payload"}';
+        $signature = '51033b9251a1db2003caf73152dc990d20c3efd8c97d176603de1dc034aa1bc1';
 
-        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, $signature, 'my-secret-key'));
+        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, $signature, '1704067200', 'my-secret-key'));
+    }
+
+    public function testVerifyWebhookSignatureRejectsDifferentTimestamp(): void
+    {
+        $payload = '{"event_type":"webhook.test","event_id":"evt_123","timestamp":"2024-01-01T00:00:00Z","message":"This is a test webhook event"}';
+        $signature = '51033b9251a1db2003caf73152dc990d20c3efd8c97d176603de1dc034aa1bc1';
+
+        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, $signature, '1704067201', 'my-secret-key'));
     }
 
     public function testVerifyWebhookSignatureRejectsMissingInputs(): void
     {
-        $payload = '{"object_key":"test.pdf","size":1024,"timestamp":"2024-01-01T00:00:00Z"}';
+        $payload = '{"event_type":"webhook.test","event_id":"evt_123","timestamp":"2024-01-01T00:00:00Z","message":"This is a test webhook event"}';
 
-        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, '', 'my-secret-key'));
-        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, 'abc', ''));
+        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, '', '1704067200', 'my-secret-key'));
+        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, 'abc', '', 'my-secret-key'));
+        self::assertFalse(LeapOCR::verifyWebhookSignature($payload, 'abc', '1704067200', ''));
     }
 }

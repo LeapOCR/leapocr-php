@@ -66,6 +66,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         'processing_time' => 'int',
         'result_format' => 'string',
         'status' => '\LeapOCRGenerated\Model\ModelsJobStatus',
+        'template_internal' => 'bool',
+        'template_name' => 'string',
         'total_pages' => 'int'
     ];
 
@@ -85,6 +87,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         'processing_time' => null,
         'result_format' => null,
         'status' => null,
+        'template_internal' => null,
+        'template_name' => null,
         'total_pages' => null
     ];
 
@@ -102,6 +106,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         'processing_time' => false,
         'result_format' => false,
         'status' => false,
+        'template_internal' => false,
+        'template_name' => false,
         'total_pages' => false
     ];
 
@@ -199,6 +205,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         'processing_time' => 'processing_time',
         'result_format' => 'result_format',
         'status' => 'status',
+        'template_internal' => 'template_internal',
+        'template_name' => 'template_name',
         'total_pages' => 'total_pages'
     ];
 
@@ -216,6 +224,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         'processing_time' => 'setProcessingTime',
         'result_format' => 'setResultFormat',
         'status' => 'setStatus',
+        'template_internal' => 'setTemplateInternal',
+        'template_name' => 'setTemplateName',
         'total_pages' => 'setTotalPages'
     ];
 
@@ -233,6 +243,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         'processing_time' => 'getProcessingTime',
         'result_format' => 'getResultFormat',
         'status' => 'getStatus',
+        'template_internal' => 'getTemplateInternal',
+        'template_name' => 'getTemplateName',
         'total_pages' => 'getTotalPages'
     ];
 
@@ -301,6 +313,8 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
         $this->setIfExists('processing_time', $data ?? [], null);
         $this->setIfExists('result_format', $data ?? [], null);
         $this->setIfExists('status', $data ?? [], null);
+        $this->setIfExists('template_internal', $data ?? [], null);
+        $this->setIfExists('template_name', $data ?? [], null);
         $this->setIfExists('total_pages', $data ?? [], null);
     }
 
@@ -558,6 +572,60 @@ class StatusResponse implements ModelInterface, ArrayAccess, \JsonSerializable
             throw new \InvalidArgumentException('non-nullable status cannot be null');
         }
         $this->container['status'] = $status;
+
+        return $this;
+    }
+
+    /**
+     * Gets template_internal
+     *
+     * @return bool|null
+     */
+    public function getTemplateInternal()
+    {
+        return $this->container['template_internal'];
+    }
+
+    /**
+     * Sets template_internal
+     *
+     * @param bool|null $template_internal Whether the template is an internal preset example: false
+     *
+     * @return self
+     */
+    public function setTemplateInternal($template_internal)
+    {
+        if (is_null($template_internal)) {
+            throw new \InvalidArgumentException('non-nullable template_internal cannot be null');
+        }
+        $this->container['template_internal'] = $template_internal;
+
+        return $this;
+    }
+
+    /**
+     * Gets template_name
+     *
+     * @return string|null
+     */
+    public function getTemplateName()
+    {
+        return $this->container['template_name'];
+    }
+
+    /**
+     * Sets template_name
+     *
+     * @param string|null $template_name Template display name when the job was created from a template example: Invoice Extractor
+     *
+     * @return self
+     */
+    public function setTemplateName($template_name)
+    {
+        if (is_null($template_name)) {
+            throw new \InvalidArgumentException('non-nullable template_name cannot be null');
+        }
+        $this->container['template_name'] = $template_name;
 
         return $this;
     }

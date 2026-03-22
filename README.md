@@ -194,7 +194,7 @@ try {
 
 ## Webhook Signature Verification
 
-Use `LeapOCR::verifyWebhookSignature()` with the raw request body exactly as received:
+Use `LeapOCR::verifyWebhookSignature()` with the raw request body exactly as received. LeapOCR sends customer webhooks with `X-Webhook-Signature` and `X-Webhook-Timestamp`, and signs `timestamp . "." . rawBody` with your webhook secret.
 
 ```php
 <?php
@@ -202,10 +202,11 @@ Use `LeapOCR::verifyWebhookSignature()` with the raw request body exactly as rec
 use LeapOCR\LeapOCR;
 
 $rawBody = file_get_contents('php://input') ?: '';
-$signature = $_SERVER['HTTP_X_R2_SIGNATURE'] ?? '';
+$signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'] ?? '';
+$timestamp = $_SERVER['HTTP_X_WEBHOOK_TIMESTAMP'] ?? '';
 $secret = (string) getenv('LEAPOCR_WEBHOOK_SECRET');
 
-if (!LeapOCR::verifyWebhookSignature($rawBody, $signature, $secret)) {
+if (!LeapOCR::verifyWebhookSignature($rawBody, $signature, $timestamp, $secret)) {
     http_response_code(401);
     echo 'Invalid signature';
     exit;
@@ -214,7 +215,7 @@ if (!LeapOCR::verifyWebhookSignature($rawBody, $signature, $secret)) {
 $payload = json_decode($rawBody, true, flags: JSON_THROW_ON_ERROR);
 ```
 
-Do not verify against re-encoded JSON. Use the original body string from the HTTP request.
+Do not verify against re-encoded JSON. Use the original body string and timestamp header from the HTTP request.
 
 ## Development
 
